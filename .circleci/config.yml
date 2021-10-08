@@ -9,30 +9,20 @@ jobs:
     working_directory: ~/repo
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
-    docker:
-      - image: circleci/golang:1.15.8
+    # docker:
+    #   - image: circleci/golang:1.15.8
+    machine:
+      image: ubuntu-1604:202104-01
     # Add steps to the job
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - go-mod-v4-{{ checksum "go.sum" }}
       - run:
-          name: Install Dependencies
-          command: go mod download
-          working_directory: api
-      - save_cache:
-          key: go-mod-v4-{{ checksum "go.sum" }}
-          paths:
-            - "/go/pkg/mod"
-      - run:
-          name: Run tests
+          name: "Check lint and run test"
           command: |
-            mkdir -p /tmp/test-reports
-            gotestsum --junitfile /tmp/test-reports/unit-tests.xml
-      - store_test_results:
-          path: /tmp/test-reports
+            docker-compose -f ./docker-compose.test.yaml build --no-cache
+            docker-compose -f ./docker-compose.test.yaml run sample-api-test
+          working_directory: api
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
