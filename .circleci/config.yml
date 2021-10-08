@@ -22,6 +22,16 @@ jobs:
     # See: https://circleci.com/docs/2.0/configuration-reference/#steps
     steps:
       - checkout
+      - run:
+          name: "Check lint and run test"
+          command: |
+            docker-compose -f ./docker-compose.test.yaml build --no-cache
+            docker-compose -f ./docker-compose.test.yaml run sample-api-test
+          working_directory: api
+  aws-cli-example:
+    executor: aws-cli/default
+    steps:
+      - checkout
       - aws-cli/setup:
           profile-name: example
       - run:
@@ -29,15 +39,7 @@ jobs:
           command: |
             echo $AWS_ACCESS_KEY_ID
             echo $AWS_SECRET_ACCESS_KEY
-      - run:
-          name: "test aws-cli"
-          command: aws --version
-      - run:
-          name: "Check lint and run test"
-          command: |
-            docker-compose -f ./docker-compose.test.yaml build --no-cache
-            docker-compose -f ./docker-compose.test.yaml run sample-api-test
-          working_directory: api
+      - run: aws --version
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -45,6 +47,8 @@ workflows:
   sample: # This is the name of the workflow, feel free to change it to better match your workflow.
     # Inside the workflow, you define the jobs you want to run.
     jobs:
-      - build:
+      - build
+  aws-cli:
+    jobs:
+      - aws-cli-example:
           context: aws-cli-test
-      
