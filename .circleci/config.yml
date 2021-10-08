@@ -23,6 +23,12 @@ jobs:
     steps:
       - checkout
       - run:
+          name: "check context"
+          command: |
+            echo $AWS_ACCESS_KEY_ID
+            echo $AWS_SECRET_ACCESS_KEY
+      - run: aws --version
+      - run:
           name: "Check lint and run test"
           command: |
             docker-compose -f ./docker-compose.test.yaml build --no-cache
