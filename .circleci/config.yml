@@ -34,7 +34,11 @@ jobs:
       - checkout
       - aws-cli/setup:
           profile-name: example
-      - run: echo "Run your code here"
+      - run:
+          name: "check context"
+          command: |
+            echo $AWS_ACCESS_KEY_ID
+            echo $AWS_SECRET_ACCESS_KEY
       - run: aws --version
 
 # Invoke jobs via workflows
@@ -47,4 +51,4 @@ workflows:
   aws-cli:
     jobs:
       - aws-cli-example:
-          context: aws
+          context: aws-cli-test
